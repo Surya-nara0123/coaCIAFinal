@@ -3,11 +3,9 @@
   import L2Cache from "./l2cache.js";
   import memory from "./mainMemory.js";
 
-  let mainMemory = new memory(64 * Math.pow(2, 10), 64);
-  let l1cache = new L1cache(64 * Math.pow(2, 10), 8 * Math.pow(2, 10), 128, 64);
-  let l2cache = new L2Cache(64 * Math.pow(2, 10), 16 * Math.pow(2, 10), 256, 64, 4);
-  console.log(l1cache);
-  console.log(mainMemory);
+  let mainMemory = new memory(8 * Math.pow(2, 10), 64);
+  let l1cache = new L1cache(8 * Math.pow(2, 10), 1 * Math.pow(2, 10), 128/8, 64);
+  //let l2cache = new L2Cache(8 * Math.pow(2, 10), 1 * Math.pow(2, 10), 128 /8, 64, 4);
   let mainMemoryEnabled = false;
   let l1cacheEnabled = false;
   let victimCacheEnabled = false;
@@ -61,7 +59,7 @@
         l1cacheEnabled = false;
         l2CacheEnabled = true;
         victimCacheEnabled = false;
-        numberOfLines = l2cache.cache.length;
+        // numberOfLines = l2cache.cache.length;
       }}>victim Cache</button
     >
   </div>
@@ -94,7 +92,7 @@
             </div>
           {/each}
         {/if}
-        {#if l1cacheEnabled}
+        <!-- {#if l2CacheEnabled}
           {#each l2cache.cache as line}
             <div class="flex flex-row">
               {#each line as cell}
@@ -114,7 +112,7 @@
               {/each}
             </div>
           {/each}
-        {/if}
+        {/if} -->
         {#if mainMemoryEnabled}
           {#each mainMemory.memory as line}
             <div class="flex flex-row">
@@ -159,7 +157,7 @@
         {/if}
       </div>
     </div>
-    <div class="bg-gray-900 h-[{numberOfLines == 1024?'8000%':'500%'}] flex flex-col p-1 border-r-2 w-[50px] sticky left-0 pt-[50px]">
+    <div class="bg-gray-900 h-['500%'] flex flex-col p-1 border-r-2 w-[50px] sticky left-0 pt-[50px]">
       {#each { length: numberOfLines } as _, i}
         <div
           class="m-1 bg-gray-800 p-1 w-[30px] h-[30px] flex items-center justify-center"

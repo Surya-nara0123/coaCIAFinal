@@ -60,4 +60,4 @@ class l2Cache {
     }
 }
 
-export default l2Cache
+export default l2Cache;
