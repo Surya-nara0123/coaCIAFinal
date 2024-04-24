@@ -9,7 +9,7 @@ class memory{
         for(let i = 0; i < this.noOfLines; i++){
             this.memory[i] = new Array(lineSize);
             for(let j = 0; j < lineSize; j++){
-                this.memory[i][j] = random.int(0, 100);
+                this.memory[i][j] = random.int(0, 99);
             }
         }
     }

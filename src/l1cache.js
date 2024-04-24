@@ -20,7 +20,7 @@ class L1cache {
         this.victimCache = new victimCache(lineSize, 4);
     }
 
-    readCache(address, mainMemory) {
+    readCache(address, mainMemory, l2Cache) {
         let offset = address % this.lineSize;
         let lineNo = Math.floor(address / this.lineSize) % this.noOfLinesOfCache;
         let tag = Math.floor(address / (this.lineSize * this.noOfLinesOfCache));
@@ -34,6 +34,7 @@ class L1cache {
                 this.cache[lineNo][i][0] = block[i];
                 this.cache[lineNo][i][1] = tag;
             }
+            data = this.cache[lineNo][offset][0];
         } else {
             if (this.cache[lineNo][offset][1] == tag) {
                 data = this.cache[lineNo][offset][0];
@@ -41,21 +42,32 @@ class L1cache {
             } else {
                 let block = mainMemory.readMemory(address);
                 // code for insert the current cache contents into the victim cache
-                let line = this.victimCache.readLine(address)
-                this.victimCache.addLine(this.cache[lineNo], address);
-                if(line){
+                let result = l2Cache.readCache(address, mainMemory);
+                if (result.hit == true) {
                     for (let i = 0; i < this.lineSize; i++) {
-                        this.cache[lineNo][i][0] = line[i][0];
-                        this.cache[lineNo][i][1] = line[i][1];
-                    }
-                } else {
-                    for (let i = 0; i < this.lineSize; i++) {
-                        this.cache[lineNo][i][0] = block[i];
+                        this.cache[lineNo][i][0] = result.line[i][0];
                         this.cache[lineNo][i][1] = tag;
                     }
+                } else {
+                    let line = this.victimCache.readLine(address)
+                    this.victimCache.addLine(this.cache[lineNo], address);
+                    if (line) {
+                        for (let i = 0; i < this.lineSize; i++) {
+                            this.cache[lineNo][i][0] = line[i][0];
+                            this.cache[lineNo][i][1] = line[i][1];
+                        }
+                    } else {
+                        for (let i = 0; i < this.lineSize; i++) {
+                            this.cache[lineNo][i][0] = block[i];
+                            this.cache[lineNo][i][1] = tag;
+                        }
+
+                    }
                 }
+                data = this.cache[lineNo][offset][0];
             }
         }
+        return { "data": data, "hit": hit }
     }
 
 }
@@ -79,8 +91,8 @@ class victimCache {
     }
 
     readLine(address) {
-        for(let i=0;i<this.noOfLinesOfCache;i++){
-            if(this.cache[i][2] == address){
+        for (let i = 0; i < this.noOfLinesOfCache; i++) {
+            if (this.cache[i][2] == address) {
                 return this.cache[i];
             }
         }
@@ -88,7 +100,7 @@ class victimCache {
 
     addLine(line, address) {
         let initialAddress = address - (address % this.lineSize)
-        for(let i=0; i<this.lineSize;i++){
+        for (let i = 0; i < this.lineSize; i++) {
             this.cache[this.currentLine][i][0] = line[i][0];
             this.cache[this.currentLine][i][1] = line[i][1];
             this.cache[this.currentLine][i][2] = initialAddress + i;
