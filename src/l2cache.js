@@ -13,7 +13,7 @@ class l2Cache {
         this.cache = new Array(this.noOfLinesOfCache);
         for (let i = 0; i < this.noOfLinesOfCache; i++) {
             this.cache[i] = new Array(this.lineSize)
-            for (let j = 0; i < this.lineSize; j++) {
+            for (let j = 0; j < this.lineSize; j++) {
                 this.cache[i][j] = new Array(3);
                 this.cache[i][j][0] = null; // data
                 this.cache[i][j][1] = null; // setno

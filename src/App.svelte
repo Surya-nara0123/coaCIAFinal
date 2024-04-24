@@ -3,14 +3,21 @@
   import L2Cache from "./l2cache.js";
   import memory from "./mainMemory.js";
 
-  let mainMemory = new memory(8 * Math.pow(2, 10), 64);
-  let l1cache = new L1cache(8 * Math.pow(2, 10), 1 * Math.pow(2, 10), 128/8, 64);
-  //let l2cache = new L2Cache(8 * Math.pow(2, 10), 1 * Math.pow(2, 10), 128 /8, 64, 4);
+  let mainMemory = new memory(64 * Math.pow(2, 10), 64);
+  let l1cache = new L1cache(64 * Math.pow(2, 10), 8 * Math.pow(2, 10), 128, 64);
+  let l2cache = new L2Cache(
+    64 * Math.pow(2, 10),
+    16 * Math.pow(2, 10),
+    256,
+    64,
+    4
+  );
   let mainMemoryEnabled = false;
   let l1cacheEnabled = false;
   let victimCacheEnabled = false;
-  let l2CacheEnabled = false
+  let l2CacheEnabled = false;
   let numberOfLines = 64;
+  let address;
 </script>
 
 <div class="w-screen h-screen flex flex-col items-center">
@@ -48,7 +55,7 @@
         l1cacheEnabled = false;
         l2CacheEnabled = false;
         victimCacheEnabled = true;
-        console.log(l1cache.readCache(0, mainMemory));
+        console.log(l1cache.readCache(0, mainMemory, l2cache));
         numberOfLines = l1cache.victimCache.cache.length;
       }}>victim Cache</button
     >
@@ -59,14 +66,27 @@
         l1cacheEnabled = false;
         l2CacheEnabled = true;
         victimCacheEnabled = false;
-        // numberOfLines = l2cache.cache.length;
-      }}>victim Cache</button
+        numberOfLines = l2cache.cache.length;
+      }}>L2 Cache</button
+    >
+    <input
+      class="m-2 w-[250px] p-4 rounded-md"
+      type="search"
+      name="prompt"
+      bind:value={address}
+      placeholder="Enter an address in hex or number"
+      required
+    />
+    <button
+      class="m-2 w-[100px]"
+      on:click={() => {
+        console.log(l1cache.readCache(address, mainMemory, l2cache));
+      }}>Find</button
     >
   </div>
   <div
     class="overflow-auto m-2 w-4/5 h-4/5 bg-gray-900 rounded-md flex flex-row relative"
   >
-    
     <div
       class="w-full h-full bg-gray-900 rounded-md grid grid-cols-64 overflow-style-none absolute top-[50px] left-[48px] rounded-tl-none"
     >
@@ -92,7 +112,7 @@
             </div>
           {/each}
         {/if}
-        <!-- {#if l2CacheEnabled}
+        {#if l2CacheEnabled}
           {#each l2cache.cache as line}
             <div class="flex flex-row">
               {#each line as cell}
@@ -112,7 +132,7 @@
               {/each}
             </div>
           {/each}
-        {/if} -->
+        {/if}
         {#if mainMemoryEnabled}
           {#each mainMemory.memory as line}
             <div class="flex flex-row">
@@ -142,7 +162,7 @@
                   <div
                     class="m-1 bg-gray-800 p-1 w-[30px] h-[30px] flex items-center justify-center"
                   >
-                    {cell}
+                    {cell[0]}
                   </div>
                 {:else}
                   <div
@@ -157,7 +177,9 @@
         {/if}
       </div>
     </div>
-    <div class="bg-gray-900 h-['500%'] flex flex-col p-1 border-r-2 w-[50px] sticky left-0 pt-[50px]">
+    <div
+      class="bg-gray-900 h-['500%'] flex flex-col p-1 border-r-2 w-[50px] sticky left-0 pt-[50px]"
+    >
       {#each { length: numberOfLines } as _, i}
         <div
           class="m-1 bg-gray-800 p-1 w-[30px] h-[30px] flex items-center justify-center"
@@ -166,7 +188,9 @@
         </div>
       {/each}
     </div>
-    <div class="bg-gray-900 w- full flex flex-row p-1 border-b-2 h-[50px] sticky top-0">
+    <div
+      class="bg-gray-900 w- full flex flex-row p-1 border-b-2 h-[50px] sticky top-0"
+    >
       {#each { length: 64 } as _, i}
         <div
           class="m-1 bg-gray-800 p-1 w-[30px] h-[30px] flex items-center justify-center"
@@ -176,10 +200,9 @@
       {/each}
     </div>
     <div
-          class="m-1 bg-gray-800 p-1 w-[48.5px] h-[50px] flex items-center justify-center fixed top-[218px] left-[149px] rounded-tl-md rounded-br-sm"
-        >
-          .
-        </div>
+      class="m-1 bg-gray-800 p-1 w-[48.5px] h-[50px] flex items-center justify-center fixed top-[218px] left-[149px] rounded-tl-md rounded-br-sm"
+    >
+      .
+    </div>
   </div>
-  
 </div>

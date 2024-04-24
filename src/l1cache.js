@@ -30,9 +30,17 @@ class L1cache {
 
         if (this.cache[lineNo][offset][0] == null) {
             let block = mainMemory.readMemory(address);
-            for (let i = 0; i < this.lineSize; i++) {
-                this.cache[lineNo][i][0] = block[i];
-                this.cache[lineNo][i][1] = tag;
+            let result = l2Cache.readCache(address, mainMemory);
+            if (result.hit == true) {
+                for (let i = 0; i < this.lineSize; i++) {
+                    this.cache[lineNo][i][0] = result.line[i][0];
+                    this.cache[lineNo][i][1] = tag;
+                }
+            } else {
+                for (let i = 0; i < this.lineSize; i++) {
+                    this.cache[lineNo][i][0] = block[i];
+                    this.cache[lineNo][i][1] = tag;
+                }
             }
             data = this.cache[lineNo][offset][0];
         } else {
