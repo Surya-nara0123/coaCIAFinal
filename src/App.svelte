@@ -55,7 +55,6 @@
         l1cacheEnabled = false;
         l2CacheEnabled = false;
         victimCacheEnabled = true;
-        console.log(l1cache.readCache(0, mainMemory, l2cache));
         numberOfLines = l1cache.victimCache.cache.length;
       }}>victim Cache</button
     >

@@ -28,9 +28,11 @@ class L1cache {
         let hit = false
         let data = null
 
+        // if the location is empty
         if (this.cache[lineNo][offset][0] == null) {
             let block = mainMemory.readMemory(address);
             let result = l2Cache.readCache(address, mainMemory);
+            console.log(result);
             if (result.hit == true) {
                 for (let i = 0; i < this.lineSize; i++) {
                     this.cache[lineNo][i][0] = result.line[i][0];
@@ -42,15 +44,21 @@ class L1cache {
                     this.cache[lineNo][i][1] = tag;
                 }
             }
+            this.victimCache.addLine(this.cache[lineNo], address);
             data = this.cache[lineNo][offset][0];
+            // if the location if not empty
         } else {
+            // the location contains the data we need
             if (this.cache[lineNo][offset][1] == tag) {
                 data = this.cache[lineNo][offset][0];
                 hit = true;
+                // if the location does not contain the data we need
             } else {
                 let block = mainMemory.readMemory(address);
+                let line1 = this.cache[lineNo];
                 // code for insert the current cache contents into the victim cache
                 let result = l2Cache.readCache(address, mainMemory);
+                console.log(result);
                 if (result.hit == true) {
                     for (let i = 0; i < this.lineSize; i++) {
                         this.cache[lineNo][i][0] = result.line[i][0];
@@ -58,20 +66,28 @@ class L1cache {
                     }
                 } else {
                     let line = this.victimCache.readLine(address)
-                    this.victimCache.addLine(this.cache[lineNo], address);
-                    if (line) {
+                    console.log(line);
+                    if (line != undefined) {
                         for (let i = 0; i < this.lineSize; i++) {
                             this.cache[lineNo][i][0] = line[i][0];
                             this.cache[lineNo][i][1] = line[i][1];
                         }
                     } else {
-                        for (let i = 0; i < this.lineSize; i++) {
-                            this.cache[lineNo][i][0] = block[i];
-                            this.cache[lineNo][i][1] = tag;
+                        let result = l2Cache.readCache(address, mainMemory);
+                        if (result.hit == true) {
+                            for (let i = 0; i < this.lineSize; i++) {
+                                this.cache[lineNo][i][0] = result.line[i][0];
+                                this.cache[lineNo][i][1] = tag;
+                            }
+                        } else {
+                            for (let i = 0; i < this.lineSize; i++) {
+                                this.cache[lineNo][i][0] = block[i];
+                                this.cache[lineNo][i][1] = tag;
+                            }
                         }
-
                     }
                 }
+                this.victimCache.addLine(line1, address);
                 data = this.cache[lineNo][offset][0];
             }
         }
@@ -107,13 +123,16 @@ class victimCache {
     }
 
     addLine(line, address) {
-        let initialAddress = address - (address % this.lineSize)
-        for (let i = 0; i < this.lineSize; i++) {
-            this.cache[this.currentLine][i][0] = line[i][0];
-            this.cache[this.currentLine][i][1] = line[i][1];
-            this.cache[this.currentLine][i][2] = initialAddress + i;
+        console.log(this.readLine(address))
+        if (this.readLine(address) == undefined) {
+            let initialAddress = address - (address % this.lineSize)
+            for (let i = 0; i < this.lineSize; i++) {
+                this.cache[this.currentLine][i][0] = line[i][0];
+                this.cache[this.currentLine][i][1] = line[i][1];
+                this.cache[this.currentLine][i][2] = initialAddress + i;
+            }
+            this.currentLine = (this.currentLine + 1) % this.noOfLinesOfCache;
         }
-        this.currentLine = (this.currentLine + 1) % this.noOfLinesOfCache;
     }
 
 }
