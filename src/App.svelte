@@ -18,6 +18,7 @@
   let l2CacheEnabled = false;
   let numberOfLines = 64;
   let address;
+  console.log();
 </script>
 
 <div class="w-screen h-screen flex flex-col items-center">
@@ -79,7 +80,12 @@
     <button
       class="m-2 w-[100px]"
       on:click={() => {
-        console.log(l1cache.readCache(address, mainMemory, l2cache));
+        let a = l1cache.readCache(address, mainMemory, l2cache);
+        console.log(a);
+        console.log(a);
+        console.log(a);
+        console.log(a);
+        console.log(a);
       }}>Find</button
     >
   </div>
